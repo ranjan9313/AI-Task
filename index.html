@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>AI Student Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--txt:#172033;--muted:#667085;--pri:#635bff;--pri2:#7c3aed;--border:#e4e7ec;--good:#12b76a;--bad:#ef4444}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:var(--txt)}
+body.dark{--bg:#0d1117;--card:#151b23;--txt:#f3f5f8;--muted:#9aa5b1;--border:#293241}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.app{min-height:100vh}.side{position:fixed;left:0;top:0;bottom:0;width:245px;background:#101827;color:white;padding:18px;overflow:auto;z-index:20}
+.brand{font-size:22px;font-weight:800;margin:3px 0 20px}.brand span{color:#9b8cff}
+nav button{width:100%;padding:10px 11px;margin:2px 0;border:0;border-radius:9px;background:transparent;color:#cbd5e1;text-align:left}nav button:hover,nav button.active{background:#293244;color:#fff}
+main{margin-left:245px;padding:24px;max-width:1550px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.top h1{margin:0;font-size:28px}
+.page{display:none}.page.active{display:block}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{grid-column:span 12;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:19px;box-shadow:0 8px 28px #1018280b}.half{grid-column:span 6}.third{grid-column:span 4}
+.tool{cursor:pointer;transition:.18s}.tool:hover{transform:translateY(-2px)}.icon{font-size:30px}
+label{display:block;font-size:13px;font-weight:750;margin:12px 0 6px}input,textarea,select{width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--txt);outline:0}textarea{min-height:125px;resize:vertical}
+.btn{padding:10px 13px;border:0;border-radius:10px;background:#eef0f5;color:#182033;font-weight:750;margin:4px 4px 4px 0}.dark .btn{background:#293241;color:#fff}.primary{background:var(--pri)!important;color:white!important}.success{background:var(--good)!important;color:white!important}.danger{background:var(--bad)!important;color:white!important}
+.muted{color:var(--muted)}.out{min-height:110px;border:1px dashed var(--border);border-radius:12px;padding:15px;overflow:auto}.resume{background:white;color:#172033;min-height:520px;padding:32px}.resume h2{border-bottom:1px solid #ddd;padding-bottom:4px}
+.slide{background:white;color:#172033;min-height:340px;border-radius:12px;padding:30px}.slide li{font-size:18px;margin:12px 0}
+.chat{height:410px;overflow:auto;border:1px solid var(--border);border-radius:12px;padding:10px}.msg{max-width:84%;padding:10px 12px;margin:7px 0;border-radius:12px;white-space:pre-wrap}.msg.u{margin-left:auto;background:var(--pri);color:white}.msg.a{background:#e8edf5;color:#172033}.dark .msg.a{background:#293241;color:white}
+.flash{height:255px;perspective:1000px;cursor:pointer}.flashin{height:100%;position:relative;transform-style:preserve-3d;transition:.55s}.flash.flip .flashin{transform:rotateY(180deg)}.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;background:linear-gradient(135deg,var(--pri),var(--pri2));color:white;font-size:23px;font-weight:800}.back{transform:rotateY(180deg);background:linear-gradient(135deg,#0891b2,#12b76a)}
+table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid var(--border);padding:9px;text-align:left}.badge{display:inline-block;border-radius:20px;padding:5px 9px;background:#edf2f7;font-size:12px}
+.notice{padding:12px;border-radius:10px;background:#fff7ed;color:#9a3412;margin:10px 0}.dark .notice{background:#38281b;color:#fdba74}
+.status{font-weight:700}.ok{color:var(--good)}.warn{color:#d97706}.error{color:var(--bad)}
+#toast{position:fixed;right:18px;bottom:18px;background:#101827;color:white;padding:12px 15px;border-radius:10px;display:none;z-index:99}
+.hidden{display:none!important}
+@media(max-width:900px){.side{position:static;width:100%;height:auto}.app{display:block}main{margin-left:0;padding:15px}nav{display:grid;grid-template-columns:1fr 1fr}.half,.third{grid-column:span 12}.top{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+<div class="brand">AI <span>Student Hub</span></div>
+<nav>
+<button class="active" onclick="go('home',this)">🏠 Dashboard</button>
+<button onclick="go('resume',this)">📄 Resume Builder</button>
+<button onclick="go('notes',this)">📝 Notes Generator</button>
+<button onclick="go('ppt',this)">📊 Presentation</button>
+<button onclick="go('mind',this)">🧠 Mind Map</button>
+<button onclick="go('sheets',this)">📋 Google Sheets</button>
+<button onclick="go('quiz',this)">❓ AI Quiz</button>
+<button onclick="go('chat',this)">💬 Doubt Chat</button>
+<button onclick="go('flash',this)">🃏 Flashcards</button>
+<button onclick="go('planner',this)">📅 Study Planner</button>
+<button onclick="go('ocr',this)">🔎 OCR + AI</button>
+<button onclick="go('project',this)">🚀 Submit Project</button>
+<button onclick="go('settings',this)">⚙️ Settings</button>
+</nav>
+</aside>
+<main>
+<div class="top"><h1 id="title">AI Student Hub</h1><div><button class="btn" onclick="theme()">🌙 Theme</button><button class="btn primary" onclick="go('project')">🚀 Give Project</button></div></div>
+
+<section id="home" class="page active"><div class="grid">
+<div class="card"><h2>Student AI Workspace</h2><p class="muted">Open this file directly in Chrome. No Node.js and no localhost required.</p><p id="homeStatus" class="status"></p></div>
+<div class="card third tool" onclick="go('resume')"><div class="icon">📄</div><h3>AI Resume</h3><p class="muted">Generate ATS-ready resume and PDF.</p></div>
+<div class="card third tool" onclick="go('notes')"><div class="icon">📝</div><h3>AI Notes</h3><p class="muted">Turn study material into notes.</p></div>
+<div class="card third tool" onclick="go('ppt')"><div class="icon">📊</div><h3>AI Presentation</h3><p class="muted">Generate slides and PPTX.</p></div>
+<div class="card third tool" onclick="go('quiz')"><div class="icon">❓</div><h3>AI Quiz</h3><p class="muted">Generate MCQs and score.</p></div>
+<div class="card third tool" onclick="go('chat')"><div class="icon">💬</div><h3>Doubt Solver</h3><p class="muted">Chat with a student tutor.</p></div>
+<div class="card third tool" onclick="go('project')"><div class="icon">🚀</div><h3>Project Submission</h3><p class="muted">Create and export submission details.</p></div>
+</div></section>
+
+<section id="resume" class="page"><div class="grid">
+<div class="card half"><h2>AI Resume Builder</h2>
+<label>Name</label><input id="rn"><label>Email / Phone</label><input id="rc"><label>Education</label><textarea id="re"></textarea><label>Skills</label><input id="rs"><label>Experience / Projects</label><textarea id="rx"></textarea><label>Objective</label><textarea id="ro"></textarea>
+<button class="btn primary" onclick="resume()">✨ Generate</button><button class="btn" onclick="saveText('resumeOut','resume.txt')">⬇ Text</button><button class="btn" onclick="pdf('resumeOut','Resume.pdf')">📄 PDF</button></div>
+<div class="card half"><h2>Preview</h2><div id="resumeOut" class="resume">Your resume will appear here.</div></div></div></section>
+
+<section id="notes" class="page"><div class="grid"><div class="card half"><h2>AI Notes Generator</h2><label>Paste your study material</label><textarea id="ni" placeholder="Paste chapter, lecture, article..."></textarea><button class="btn primary" onclick="notes()">✨ Generate Notes</button><button class="btn" onclick="copy('no')">Copy</button><button class="btn" onclick="saveText('no','notes.md')">Download</button></div><div class="card half"><h2>Notes</h2><div id="no" class="out">Generated notes appear here.</div></div></div></section>
+
+<section id="ppt" class="page"><div class="card"><h2>AI Presentation Generator</h2><label>Topic</label><input id="pt" placeholder="e.g. Artificial Intelligence in Education"><button class="btn primary" onclick="ppt()">✨ Generate Slides</button><button class="btn" onclick="prevSlide()">← Previous</button><button class="btn" onclick="nextSlide()">Next →</button><button class="btn success" onclick="pptx()">⬇ PPTX</button><div id="po" class="slide" style="margin-top:15px">Generate slides to begin.</div></div></section>
+
+<section id="mind" class="page"><div class="card"><h2>AI Mind Map</h2><label>Syllabus / Topic</label><textarea id="mi"></textarea><button class="btn primary" onclick="mind()">✨ Generate Mind Map</button><div id="mo" class="out" style="margin-top:15px"></div></div></section>
+
+<section id="sheets" class="page"><div class="card"><h2>Google Sheets Backend</h2><p class="muted">Paste a Google Apps Script Web App URL. The script must allow your browser origin.</p><label>Web App URL</label><input id="su"><label>JSON to send</label><textarea id="sd">{"name":"Student","project":"AI Student Hub"}</textarea><button class="btn" onclick="sheetRead()">Read</button><button class="btn primary" onclick="sheetWrite()">Write</button><div id="so" class="out"></div></div></section>
+
+<section id="quiz" class="page"><div class="card"><h2>AI Quiz / MCQ</h2><label>Topic or notes</label><textarea id="qi"></textarea><label>Questions</label><select id="qc"><option>5</option><option>10</option></select><button class="btn primary" onclick="quiz()">✨ Generate Quiz</button><button class="btn success" onclick="scoreQuiz()">Submit Quiz</button><div id="qo"></div></div></section>
+
+<section id="chat" class="page"><div class="card"><h2>AI Doubt-Solving Tutor</h2><div id="cb" class="chat"></div><div style="display:flex;gap:7px;margin-top:8px"><input id="ci" placeholder="Ask your doubt..." onkeydown="if(event.key==='Enter')chat()" style="flex:1"><button class="btn primary" onclick="chat()">Send</button><button class="btn" onclick="clearChat()">Clear</button></div></div></section>
+
+<section id="flash" class="page"><div class="card"><h2>AI Flashcards</h2><label>Topic</label><input id="fi" placeholder="Operating System"><button class="btn primary" onclick="flashGen()">✨ Generate</button><button class="btn" onclick="shuffleFlash()">🔀 Shuffle</button><button class="btn" onclick="nextFlash()">Next →</button><div id="fo" style="margin-top:15px"></div></div></section>
+
+<section id="planner" class="page"><div class="card"><h2>AI Study Planner</h2><label>Subjects</label><textarea id="ps" placeholder="DBMS, OS, Java, DSA"></textarea><label>Hours per day</label><input id="ph" type="number" value="4"><label>Exam dates / deadlines</label><textarea id="pd"></textarea><label>Preferences</label><textarea id="pp"></textarea><button class="btn primary" onclick="planner()">✨ Generate Plan</button><div id="pl" class="out" style="margin-top:15px"></div></div></section>
+
+<section id="ocr" class="page"><div class="card"><h2>OCR + AI</h2><label>Upload an image</label><input id="of" type="file" accept="image/*"><button class="btn primary" onclick="ocr()">🔎 Extract Text</button><button class="btn success" onclick="ocrSummary()">✨ AI Summary</button><label>Editable extracted text</label><textarea id="ot"></textarea><div id="os" class="out"></div></div></section>
+
+<section id="project" class="page"><div class="grid">
+<div class="card half"><h2>🚀 Project Submission</h2><label>Student Name</label><input id="pn"><label>College / University</label><input id="pc"><label>Roll No.</label><input id="pr"><label>Faculty / Reviewer</label><input id="pf"><label>Project Title</label><input id="pT"><label>Description</label><textarea id="pD"></textarea><label>Objective</label><textarea id="pO"></textarea><label>Technologies</label><input id="pTech"><label>GitHub URL</label><input id="pg"><label>Live Demo URL</label><input id="plv"><label>Project Files</label><input id="files" type="file" multiple><button class="btn primary" onclick="projectAI()">✨ AI Summary</button><button class="btn" onclick="saveProject()">💾 Save</button><button class="btn" onclick="projectPDF()">📄 PDF</button><button class="btn" onclick="shareProject()">📤 Share</button></div>
+<div class="card half"><h2>Submission Preview</h2><div id="pv" class="out">Fill project details.</div><h3>Selected Files</h3><div id="fl" class="muted">No files selected.</div></div>
+<div class="card"><h2>Give / Submit Project</h2><p class="muted">For a real submission to a teacher/company, use the GitHub/Live Demo links or your normal college submission portal. This browser-only file cannot secretly upload files to a server without an endpoint.</p><button class="btn primary" onclick="shareProject()">📤 Share Project Details</button><button class="btn" onclick="projectPDF()">📄 Create Submission PDF</button></div>
+</div></section>
+
+<section id="settings" class="page"><div class="card"><h2>⚙️ AI Settings</h2>
+<div class="notice"><b>Direct Browser Mode:</b> This website uses Google Gemini for AI. Create a Gemini API key in Google AI Studio and paste it below. Free-tier availability and rate limits depend on the model/account.</div>
+<label>Gemini API Key</label><input id="key" type="password" placeholder="Paste your Gemini API key"><label>Gemini Model</label><input id="model" value="gemini-flash-latest"><button class="btn primary" onclick="saveAPI()">💾 Save Gemini API</button><button class="btn danger" onclick="clearAPI()">Clear Key</button><p id="apiState"></p>
+</div></section>
+</main></div><div id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+let slides=[],slideIndex=0,questions=[],cards=[],cardIndex=0,history=[];
+
+function toast(s){let t=$('toast');t.textContent=s;t.style.display='block';clearTimeout(window.tt);window.tt=setTimeout(()=>t.style.display='none',2500)}
+function go(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');$('title').textContent={'home':'AI Student Hub','resume':'AI Resume Builder','notes':'AI Notes Generator','ppt':'AI Presentation','mind':'AI Mind Map','sheets':'Google Sheets','quiz':'AI Quiz','chat':'AI Doubt Tutor','flash':'AI Flashcards','planner':'AI Study Planner','ocr':'OCR + AI','project':'Project Submission','settings':'Settings'}[id]||'AI Student Hub'}
+function theme(){document.body.classList.toggle('dark');localStorage.setItem('dark',document.body.classList.contains('dark'))}
+if(localStorage.getItem('dark')==='true')document.body.classList.add('dark');
+
+function saveAPI(){let k=$('key').value.trim();if(!k)return toast('Enter your Gemini API key');localStorage.setItem('gemini_key',k);localStorage.setItem('gemini_model',$('model').value.trim()||'gemini-flash-latest');updateAPI();toast('Gemini API key saved')}
+function clearAPI(){localStorage.removeItem('gemini_key');$('key').value='';updateAPI();toast('Gemini key cleared; Demo Mode active')}
+function updateAPI(){let ok=!!localStorage.getItem('gemini_key');$('apiState').innerHTML=ok?'<span class="ok">🟢 Gemini AI mode is ready.</span>':'<span class="warn">🟡 Demo Mode is active. Add a Gemini key for real AI.</span>';$('homeStatus').innerHTML=ok?'<span class="ok">🟢 Gemini API configured — browser-direct mode</span>':'<span class="warn">🟡 Demo Mode — add a Gemini API key in Settings for real AI</span>'}
+$('key').value=localStorage.getItem('gemini_key')||'';$('model').value=localStorage.getItem('gemini_model')||'gemini-flash-latest';updateAPI();
+
+async function ai(prompt,json=false,system='You are a helpful AI tutor for students.') {
+ const key=localStorage.getItem('gemini_key');
+ if(!key)return demo(prompt,json);
+ const model=localStorage.getItem('gemini_model')||'gemini-flash-latest';
+ const body={contents:[{role:'user',parts:[{text:system+'\n\n'+prompt}]}],generationConfig:{temperature:.35}};
+ if(json){body.generationConfig.responseMimeType='application/json'}
+ const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body)});
+ const txt=await r.text();let d={};try{d=JSON.parse(txt)}catch{}
+ if(!r.ok)throw Error(d.error?.message||'Gemini request failed. Check your API key, model, quota, or internet.');
+ return (d.candidates?.[0]?.content?.parts||[]).map(x=>x.text||'').join('');
+}
+async function safe(fn){try{return await fn()}catch(e){console.error(e);toast(e.message)}}
+
+/* Demo responses keep the page functional without an API key. */
+function demo(p,json){
+ let n=Number((p.match(/(?:create|generate)\s+(\d+)/i)||[])[1])||5;
+ if(/mcq|multiple-choice/i.test(p))return JSON.stringify({questions:Array.from({length:n},(_,i)=>({question:`Demo Question ${i+1}: What is an important concept in this topic?`,options:['Concept / Definition','Random value','Unrelated idea','None'],answer:0,explanation:'Demo mode. Add an API key for AI-generated questions.'}))});
+ if(/flashcards?/i.test(p))return JSON.stringify({cards:Array.from({length:8},(_,i)=>({question:`Demo Flashcard ${i+1}`,answer:'Add a Gemini API key for real AI-generated content.'}))});
+ if(/slides/i.test(p))return JSON.stringify({slides:Array.from({length:6},(_,i)=>({title:`Demo Slide ${i+1}`,bullets:['Introduction','Key concept','Important point','Example']}))});
+ if(/mind map/i.test(p))return JSON.stringify({root:'Demo Topic',details:'Add an API key for AI-generated mind maps.',children:[{title:'Fundamentals',children:[{title:'Definitions'},{title:'Key points'}]},{title:'Applications',children:[{title:'Examples'},{title:'Benefits'}]},{title:'Revision',children:[{title:'Summary'},{title:'Questions'}]}]});
+ if(/timetable|study plan/i.test(p))return JSON.stringify({days:['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map((d,i)=>({day:d,sessions:[{time:'6:00 PM',subject:['Subject 1','Subject 2','Subject 3'][i%3],task:i===5?'Mock test':'Concept study + practice'}]}))});
+ if(/resume/i.test(p))return JSON.stringify({name:'Student Name',contact:'Email • Phone',summary:'Motivated student with strong learning and problem-solving skills.',education:'Add education details.',skills:'JavaScript • React • SQL • Python',experience:'Add experience.',projects:'Add projects.'});
+ if(/project submission|project summary/i.test(p))return JSON.stringify({summary:'A practical student project built to solve a real-world problem.',features:['Responsive interface','Useful student workflow','Modern web technologies'],learning_outcomes:['Frontend development','API integration','Problem solving'],conclusion:'The project demonstrates practical application of software development concepts.'});
+ return `## Demo Mode\n\n${p.slice(0,220)}\n\n- This feature is working locally.\n- Add your Gemini API key in **Settings** for real AI output.`;
+}
+
+/* Resume */
+async function resume(){await safe(async()=>{let x=JSON.parse(await ai(`Create an ATS-friendly one-page resume JSON with keys name,contact,summary,education,skills,experience,projects.
+Name: ${$('rn').value}
+Contact: ${$('rc').value}
+Education: ${$('re').value}
+Skills: ${$('rs').value}
+Experience/Projects: ${$('rx').value}
+Objective: ${$('ro').value}`,true,'You are a professional resume writer.'));$('resumeOut').innerHTML=`<h1>${esc(x.name)}</h1><p>${esc(x.contact)}</p><h2>Professional Summary</h2><p>${esc(x.summary)}</p><h2>Education</h2><p>${esc(x.education)}</p><h2>Skills</h2><p>${esc(Array.isArray(x.skills)?x.skills.join(' • '):x.skills)}</p><h2>Experience</h2><p>${esc(x.experience)}</p><h2>Projects</h2><p>${esc(x.projects)}</p>`})}
+
+/* Notes */
+async function notes(){let text=$('ni').value.trim();if(!text)return toast('Enter study material');await safe(async()=>{$('no').innerHTML=marked.parse(await ai('Convert this material into concise exam-ready Markdown notes with headings, bullets, definitions and examples:\\n'+text))})}
+
+/* PPT */
+async function ppt(){let topic=$('pt').value.trim();if(!topic)return toast('Enter topic');await safe(async()=>{let x=JSON.parse(await ai(`Create 5-6 presentation slides for "${topic}". JSON: {"slides":[{"title":"","bullets":["","",""]}]}`,true));slides=x.slides||[];slideIndex=0;renderSlide()})}
+function renderSlide(){let s=slides[slideIndex];$('po').innerHTML=s?`<h2>${esc(s.title)}</h2><ul>${s.bullets.map(b=>`<li>${esc(b)}</li>`).join('')}</ul><p class="muted">Slide ${slideIndex+1}/${slides.length}</p>`:'Generate slides to begin.'}
+function nextSlide(){if(slides.length){slideIndex=(slideIndex+1)%slides.length;renderSlide()}}function prevSlide(){if(slides.length){slideIndex=(slideIndex-1+slides.length)%slides.length;renderSlide()}}
+async function pptx(){if(!slides.length)return toast('Generate slides first');let p=new pptxgen();p.layout='LAYOUT_WIDE';slides.forEach(s=>{let q=p.addSlide();q.addText(s.title,{x:.6,y:.5,w:12,h:.6,fontSize:28,bold:true});q.addText(s.bullets.map(x=>'• '+x).join('\n'),{x:.8,y:1.5,w:11.3,h:4.5,fontSize:20})});await p.writeFile({fileName:'AI_Presentation.pptx'})}
+
+/* Mind map */
+async function mind(){let v=$('mi').value.trim();if(!v)return toast('Enter syllabus');await safe(async()=>{let x=JSON.parse(await ai(`Create a hierarchy mind map for: ${v}. JSON {"root":"","details":"","children":[{"title":"","details":"","children":[]}]}; max depth 3.`,true));function tree(n){return `<details open><summary><b>${esc(n.title||n.root)}</b></summary>${n.details?`<p class="muted">${esc(n.details)}</p>`:''}${(n.children||[]).map(tree).join('')}</details>`}$('mo').innerHTML=tree(x)})}
+
+/* Sheets */
+async function sheetRead(){let u=$('su').value.trim();if(!u)return toast('Enter URL');try{let r=await fetch(u);$('so').innerHTML='<pre>'+esc(await r.text())+'</pre>'}catch(e){toast('Sheet read failed: '+e.message)}}
+async function sheetWrite(){let u=$('su').value.trim();if(!u)return toast('Enter URL');try{let r=await fetch(u,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:$('sd').value});$('so').innerHTML='<pre>'+esc(await r.text())+'</pre>'}catch(e){toast('Sheet write failed: '+e.message)}}
+
+/* Quiz */
+async function quiz(){let v=$('qi').value.trim();if(!v)return toast('Enter topic');await safe(async()=>{let x=JSON.parse(await ai(`Create ${$('qc').value} MCQs on: ${v}. JSON {"questions":[{"question":"","options":["","","",""],"answer":0,"explanation":""}]}; answer is zero-based.`,true));questions=x.questions||[];renderQuiz()})}
+function renderQuiz(){$('qo').innerHTML=questions.map((q,i)=>`<div class="card" style="margin-top:12px"><b>Q${i+1}. ${esc(q.question)}</b>${q.options.map((o,j)=>`<label style="font-weight:400"><input type="radio" name="q${i}" value="${j}" style="width:auto"> ${esc(o)}</label>`).join('')}</div>`).join('')}
+function scoreQuiz(){if(!questions.length)return toast('Generate quiz first');let s=0;questions.forEach((q,i)=>{let a=document.querySelector(`input[name="q${i}"]:checked`);if(a&&+a.value===q.answer)s++});$('qo').insertAdjacentHTML('afterbegin',`<div class="card"><div style="font-size:28px;font-weight:800">${s}/${questions.length}</div><b>Your Score</b></div>`)}
+
+/* Chat */
+function addMsg(type,text){let d=document.createElement('div');d.className='msg '+type;d.textContent=text;$('cb').appendChild(d);$('cb').scrollTop=$('cb').scrollHeight}
+async function chat(){let q=$('ci').value.trim();if(!q)return;addMsg('u',q);$('ci').value='';history.push({role:'user',content:q});await safe(async()=>{let a=await ai('Answer this student doubt clearly, step-by-step, with a simple example if useful:\\n'+history.map(x=>x.role+': '+x.content).join('\n'));history.push({role:'assistant',content:a});addMsg('a',a)})}
+function clearChat(){history=[];$('cb').innerHTML=''}
+
+/* Flashcards */
+async function flashGen(){let v=$('fi').value.trim();if(!v)return toast('Enter topic');await safe(async()=>{let x=JSON.parse(await ai(`Create 8 flashcards for "${v}". JSON {"cards":[{"question":"","answer":""}]}`,true));cards=x.cards||[];cardIndex=0;renderFlash()})}
+function renderFlash(){let c=cards[cardIndex];$('fo').innerHTML=c?`<div class="flash" onclick="this.classList.toggle('flip')"><div class="flashin"><div class="face">${esc(c.question)}</div><div class="face back">${esc(c.answer)}</div></div></div><p class="muted">Card ${cardIndex+1}/${cards.length} • Tap to flip</p>`:''}
+function nextFlash(){if(cards.length){cardIndex=(cardIndex+1)%cards.length;renderFlash()}}function shuffleFlash(){cards.sort(()=>Math.random()-.5);cardIndex=0;renderFlash()}
+
+/* Planner */
+async function planner(){await safe(async()=>{let x=JSON.parse(await ai(`Create a practical study timetable.
+Subjects: ${$('ps').value}
+Hours/day: ${$('ph').value}
+Exam dates: ${$('pd').value}
+Preferences: ${$('pp').value}
+JSON {"days":[{"day":"","sessions":[{"time":"","subject":"","task":""}]}]}`,true));$('pl').innerHTML='<table><tr><th>Day</th><th>Time</th><th>Subject</th><th>Task</th></tr>'+x.days.flatMap(d=>(d.sessions||[]).map(s=>`<tr><td>${esc(d.day)}</td><td>${esc(s.time)}</td><td>${esc(s.subject)}</td><td>${esc(s.task)}</td></tr>`)).join('')+'</table>'})}
+
+/* OCR */
+async function ocr(){let f=$('of').files[0];if(!f)return toast('Choose image');$('ot').value='Extracting...';try{let r=await Tesseract.recognize(f,'eng',{logger:()=>{}});$('ot').value=r.data.text;toast('OCR completed')}catch(e){toast('OCR failed: '+e.message)}}
+async function ocrSummary(){let t=$('ot').value.trim();if(!t)return toast('Extract text first');await safe(async()=>{$('os').innerHTML=marked.parse(await ai('Summarize these OCR notes into exam-ready bullets:\\n'+t))})}
+
+/* Project */
+function projectData(){return {student:$('pn').value,college:$('pc').value,roll:$('pr').value,faculty:$('pf').value,title:$('pT').value,description:$('pD').value,objective:$('pO').value,technologies:$('pTech').value,github:$('pg').value,live:$('plv').value}}
+async function projectAI(){let p=projectData();if(!p.title)return toast('Enter project title');await safe(async()=>{let x=JSON.parse(await ai(`Create professional project submission content for ${JSON.stringify(p)}. JSON {"summary":"","features":[],"learning_outcomes":[],"conclusion":""}`,true,'You are a professional project documentation writer.'));$('pv').innerHTML=`<h2>${esc(p.title)}</h2><p><b>Student:</b> ${esc(p.student)}<br><b>College:</b> ${esc(p.college)}<br><b>Technologies:</b> ${esc(p.technologies)}</p><h3>Summary</h3><p>${esc(x.summary)}</p><h3>Features</h3><ul>${x.features.map(v=>`<li>${esc(v)}</li>`).join('')}</ul><h3>Learning Outcomes</h3><ul>${x.learning_outcomes.map(v=>`<li>${esc(v)}</li>`).join('')}</ul><h3>Conclusion</h3><p>${esc(x.conclusion)}</p>`})}
+function saveProject(){localStorage.setItem('student_project',JSON.stringify(projectData()));toast('Project saved in browser')}
+function loadProject(){try{let p=JSON.parse(localStorage.getItem('student_project')||'null');if(!p)return;[['pn','student'],['pc','college'],['pr','roll'],['pf','faculty'],['pT','title'],['pD','description'],['pO','objective'],['pTech','technologies'],['pg','github'],['plv','live']].forEach(([a,b])=>$(a).value=p[b]||'')}catch{}}
+function projectPDF(){let p=projectData(),{jsPDF}=window.jspdf,d=new jsPDF();d.setFontSize(18);d.text('PROJECT SUBMISSION',15,18);d.setFontSize(10);let y=30;Object.entries(p).forEach(([k,v])=>{let a=d.splitTextToSize(k.toUpperCase()+': '+v,180);d.text(a,15,y);y+=a.length*5+3;if(y>275){d.addPage();y=20}});d.save('Project_Submission.pdf')}
+async function shareProject(){let p=projectData(),t=`Project: ${p.title}\nStudent: ${p.student}\nCollege: ${p.college}\nTechnologies: ${p.technologies}\nGitHub: ${p.github}\nLive Demo: ${p.live}`;if(navigator.share){try{await navigator.share({title:p.title||'Project Submission',text:t})}catch{}}else{await navigator.clipboard.writeText(t);toast('Project details copied')}}
+$('files').addEventListener('change',e=>{$('fl').innerHTML=[...e.target.files].map(f=>`📎 ${esc(f.name)} <span class="muted">(${Math.round(f.size/1024)} KB)</span>`).join('<br>')||'No files selected'});
+loadProject();
+
+/* Utilities */
+function copy(id){let text=$(id).innerText||$(id).value;navigator.clipboard?.writeText(text).then(()=>toast('Copied')).catch(()=>toast('Copy not supported'))}
+function saveText(id,name){let text=$(id).innerText||$(id).value;let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function pdf(id,name){let {jsPDF}=window.jspdf,d=new jsPDF();d.html($(id),{margin:12,autoPaging:'text',callback:x=>x.save(name)})}
+</script>
+</body>
+</html>
